@@ -11,14 +11,15 @@ The goals of this project.
 |凃于珊|統計碩二|110354011||
 
 ## Quick start
-You might provide an example commend or few commends to reproduce your analysis, i.e., the following R script
+example commend  to reproduce your analysis,
+following R script
 ```R
 Rscript code/your_script.R --input data/train --output results/performance.tsv
 ```
 
 ## Folder organization and its related description
-idea by Noble WS (2009) [A Quick Guide to Organizing Computational Biology Projects.](https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1000424) PLoS Comput Biol 5(7): e1000424.
-
+WSDM - KKBox's Music Recommendation Challenge (2018) 
+[LINK.](https://www.kaggle.com/competitions/kkbox-music-recommendation-challenge) 
 ### docs
 * Your presentation, 1112_DS-FP_groupID.ppt/pptx/pdf (i.e.,1112_DS-FP_group1.ppt), by **06.08**
 * Any related document for the project

@@ -6,11 +6,11 @@ set.seed(111753220)
 
 # 定义命令行参数
 option_list <- list(
-  make_option(c("--train"), type = "character", default = "Data/train.csv",
+  make_option(c("--train"), type = "character", default = "data/train.csv",
               help = "Path to the training data CSV file."),
-  make_option(c("--test"), type = "character", default = "Data/test.csv",
+  make_option(c("--test"), type = "character", default = "data/test.csv",
               help = "Path to the test data CSV file."),
-  make_option(c("--predict"), type = "character", default = "111753222.csv",
+  make_option(c("--output"), type = "character", default = "results/performance",
               help = "Path to save the prediction results as a CSV file.")
 )
 
@@ -102,5 +102,5 @@ predictions <- predict(xgb_model, newdata = dtest)
 # 保存预测结果为CSV文件
 result <- data.frame(Id = test_data$id, label = predictions)
 #result$label <- ifelse(result$label < 0.5, -1, 1)
-write.csv(result, file = opt$predict, row.names = FALSE)
+write.csv(result, file = opt$output, row.names = FALSE)
 
