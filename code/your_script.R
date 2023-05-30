@@ -6,9 +6,9 @@ set.seed(111753220)
 
 # 定义命令行参数
 option_list <- list(
-  make_option(c("--train"), type = "character", default = "data/train.csv",
+  make_option(c("--train"), type = "character", default = "../data/train.csv",
               help = "Path to the training data CSV file."),
-  make_option(c("--test"), type = "character", default = "data/test.csv",
+  make_option(c("--test"), type = "character", default = "../data/test.csv",
               help = "Path to the test data CSV file."),
   make_option(c("--output"), type = "character", default = "results/performance",
               help = "Path to save the prediction results as a CSV file.")
