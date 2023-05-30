@@ -4,13 +4,16 @@ The goals of this project.
 ## Contributors
 |組員|系級|學號|工作分配|
 |-|-|-|-|
-|何彥南|資科碩二|110753202|團隊中的吉祥物🦒，負責增進團隊氣氛| 
-|張小銘|資科碩二|xxxxxxxxx|團隊的中流砥柱，一個人打十個|
+|李峻安|資科碩一|111753222|團隊中的吉祥物🐇| 
+|林尚儀|資科碩一|111753220||
+|鄭竣鴻|統計碩一|111354009||
+|陳劭晏|統計碩二|110354012||
+|凃于珊|統計碩二|110354011||
 
 ## Quick start
 You might provide an example commend or few commends to reproduce your analysis, i.e., the following R script
 ```R
-Rscript code/your_script.R --input data/training --output results/performance.tsv
+Rscript code/your_script.R --input data/train --output results/performance.tsv
 ```
 
 ## Folder organization and its related description
