@@ -20,3 +20,4 @@ df3 <- merge(x = df2, y = extra, by = 'song_id', all.x = T)
 # There are a lot of N/A in song's names and ISRC
 ### Write CSV
 write.csv(df3,'../data/merged_data.csv', row.names = F)
+
