@@ -1,106 +1,163 @@
+library(reshape)
+library(reshape2)
 library(xgboost)
 library(caret)
-library(optparse)
+library(jsonlite)
+library(dplyr)
+library(Matrix)
+library(doParallel)
+library(lubridate)
 
-set.seed(111753220)
 
-# 定义命令行参数
-option_list <- list(
-  make_option(c("--train"), type = "character", default = "../data/train.csv",
-              help = "Path to the training data CSV file."),
-  make_option(c("--test"), type = "character", default = "../data/test.csv",
-              help = "Path to the test data CSV file."),
-  make_option(c("--output"), type = "character", default = "results/performance",
-              help = "Path to save the prediction results as a CSV file.")
+
+
+train<-read.csv("../data/train.csv")
+test<-read.csv("../data/test.csv")
+
+train$key<-paste(train$msno,train$song_id,sep="_")
+test$key<-paste(test$msno,test$song_id,sep="_")
+
+train$id<-row.names(train)
+
+test$target<-''
+
+train$type<-'train'
+test$type<-'test'
+
+train1<-train[,c('key','type','id','source_system_tab','source_screen_name','source_type','target')]
+test1<-test[,c('key','type','id','source_system_tab','source_screen_name','source_type','target')]
+
+master_df<-rbind(train1,test1)
+
+rm(train)
+rm(test)
+rm(train1)
+rm(test1)
+
+
+
+
+
+
+#Creating source system tab based primary variables
+
+master_df$flag_source_system_tab_discover<-ifelse(master_df$source_system_tab=="discover",1,0)
+master_df$flag_source_system_tab_explore<-ifelse(master_df$source_system_tab=="explore",1,0)
+master_df$flag_source_system_tab_listen_with<-ifelse(master_df$source_system_tab=="listen with",1,0)
+master_df$flag_source_system_tab_my_library<-ifelse(master_df$source_system_tab=="my library",1,0)
+master_df$flag_source_system_tab_notification<-ifelse(master_df$source_system_tab=="notification",1,0)
+master_df$flag_source_system_tab_radio<-ifelse(master_df$source_system_tab=="radio",1,0)
+master_df$flag_source_system_tab_search<-ifelse(master_df$source_system_tab=="search",1,0)
+master_df$flag_source_system_tab_settings<-ifelse(master_df$source_system_tab=="settings",1,0)
+
+
+print("part 2")
+#Creating source type based primary variables
+
+master_df$flag_source_type_song<-ifelse(master_df$source_type=="song",1,0)
+master_df$flag_source_type_song_based_playlist<-ifelse(master_df$source_type=="song-based-playlist",1,0)
+master_df$flag_source_type_top_hits_for_artist<-ifelse(master_df$source_type=="top-hits-for-artist",1,0)
+master_df$flag_source_type_topic_article_playlist<-ifelse(master_df$source_type=="topic-article-playlist",1,0)
+master_df$flag_source_type_my_daily_playlist<-ifelse(master_df$source_type=="my-daily-playlist",1,0)
+master_df$flag_source_type_online_playlist<-ifelse(master_df$source_type=="online-playlist",1,0)
+master_df$flag_source_type_listen_with<-ifelse(master_df$source_type=="listen-with",1,0)
+master_df$flag_source_type_local_library<-ifelse(master_df$source_type=="local-library",1,0)
+master_df$flag_source_type_local_playlist<-ifelse(master_df$source_type=="local-playlist",1,0)
+master_df$flag_source_type_album<-ifelse(master_df$source_type=="album",1,0)
+master_df$flag_source_type_artist<-ifelse(master_df$source_type=="artist",1,0)
+
+
+
+
+
+#Creating secondary variables combining source type and source tab information
+#For album
+#master_df$flag_source_type_system_tab_album_discover<-master_df$flag_source_type_album*master_df$flag_source_system_tab_discover
+#master_df$flag_source_type_system_tab_album_my_library<-master_df$flag_source_type_album*master_df$flag_source_system_tab_my_library
+#master_df$flag_source_type_system_tab_album_search<-master_df$flag_source_type_album*master_df$flag_source_system_tab_search
+
+#For artist
+master_df$flag_source_type_system_tab_artist_my_library<-master_df$flag_source_type_artist*master_df$flag_source_system_tab_my_library
+
+#For listen with
+master_df$flag_source_type_system_tab_listen_with<-master_df$flag_source_system_tab_listen_with*master_df$flag_source_type_listen_with
+
+
+#For local library
+master_df$flag_source_type_system_tab_local_library_my_library<-master_df$flag_source_type_local_library*master_df$flag_source_system_tab_my_library
+master_df$flag_source_type_system_tab_local_library_discover<-master_df$flag_source_type_local_library*master_df$flag_source_system_tab_discover
+
+#For local playlist
+master_df$flag_source_type_system_tab_local_playlist_my_library<-master_df$flag_source_type_local_playlist*master_df$flag_source_system_tab_my_library
+
+#For online playlist
+master_df$flag_source_type_system_tab_online_playlist_discover<-master_df$flag_source_type_online_playlist*master_df$flag_source_system_tab_discover
+
+print("part 4")
+#For song
+master_df$flag_source_type_system_tab_song_search<-master_df$flag_source_type_song*master_df$flag_source_system_tab_search
+
+
+
+#For song based playlist
+master_df$flag_source_type_system_tab_song_based_playlist_discover<-master_df$flag_source_type_song_based_playlist*master_df$flag_source_system_tab_discover
+
+
+
+
+
+train_data<-master_df[master_df$type=='train',]
+test_data<-master_df[master_df$type=='test',]
+
+
+#training and test data creation
+train_data_xgb1<-master_df[master_df$type=="train",c(8:ncol(master_df))]
+test_data_xgb1<-master_df[master_df$type=="test",c(8:ncol(master_df))]
+
+
+train_data$target <- factor(train_data$target, levels = c(0,1), ordered = TRUE)
+ydata <- as.numeric(train_data$target)-1
+
+xdata <- Matrix(as.matrix(train_data_xgb1), sparse = TRUE)
+
+xdata_test_final <- Matrix(as.matrix(test_data_xgb1), sparse = TRUE)
+
+#####################Analysis done########################
+
+#####################XGBoost start########################
+# xgboost parameters
+param <- list("objective" = "multi:softprob",    # multiclass classification 
+              "num_class" = 2,    # number of classes 
+              "eval_metric" = "merror",    # evaluation metric 
+              "nthread" = 8,   # number of threads to be used 
+              "max_depth" = 16,    # maximum depth of tree 
+              "eta" = 0.3,    # step size shrinkage 
+              "gamma" = 0,    # minimum loss reduction 
+              "subsample" = 1,    # part of data instances to grow tree 
+              "colsample_bytree" = 1,  # subsample ratio of columns when constructing each tree 
+              "min_child_weight" = 12  # minimum sum of instance weight needed in a child 
 )
 
-# 解析命令行参数
-opt_parser <- OptionParser(option_list = option_list)
-opt <- parse_args(opt_parser)
+print("Part 5")
+bst.cv <- xgb.cv(param=param, data=xdata, label=ydata, 
+                 nfold=2, nrounds=30, prediction=TRUE, verbose=TRUE)
 
-# 载入训练数据和测试数据
-train_data <- read.csv(opt$train)
-test_data <- read.csv(opt$test)
+print("Part 6")
+min.merror.idx = which.min(bst.cv$evaluation_log[,test_merror_mean]) 
 
-# 迭代处理每个列
-for (col in names(train_data)) {
-  # 检查列是否存在缺失值
-  has_missing <- sum(is.na(train_data[[col]])) > 0
-  
-  if (has_missing) {
-    # 使用均值填充缺失值
-    mean_value <- mean(train_data[[col]], na.rm = TRUE)
-    train_data[[col]][is.na(train_data[[col]])] <- mean_value
-  }
-}
+xgb <- xgboost(param=param, data=xdata, label=ydata,
+               nrounds=min.merror.idx, verbose=TRUE)
 
-for (col in names(test_data)) {
-  has_missing <- sum(is.na(test_data[[col]])) > 0
-  
-  if (has_missing) {
-    mean_value <- mean(test_data[[col]], na.rm = TRUE)
-    test_data[[col]][is.na(test_data[[col]])] <- mean_value
-  }
-}
 
-# 添加统计特征
-train_data$mean_value <- apply(train_data[, -(1:2)], 1, mean)
-train_data$sd_value <- apply(train_data[, -(1:2)], 1, sd)
-train_data$max_value <- apply(train_data[, -(1:2)], 1, max)
-train_data$min_value <- apply(train_data[, -(1:2)], 1, min)
+pred_xgb <- predict(xgb, xdata_test_final, reshape = TRUE)
 
-test_data$mean_value <- apply(test_data[, -(1:1)], 1, mean)
-test_data$sd_value <- apply(test_data[, -(1:1)], 1, sd)
-test_data$max_value <- apply(test_data[, -(1:1)], 1, max)
-test_data$min_value <- apply(test_data[, -(1:1)], 1, min)
 
-# 将训练数据集转换为矩阵
-#train_matrix <- as.matrix(train_data[, -(1:2)])
+pred_xgb2 <- as.data.frame(pred_xgb)
+names(pred_xgb2) <- c("zero","one")
+pred_xgb2$id <- test_data$id
 
-# 将测试数据集转换为矩阵
-#test_matrix <- as.matrix(test_data[, -(1:1)])
+pred_xgb2$target <- ifelse(pred_xgb2$zero>pred_xgb2$one,0,1)
 
-# 计算欧氏距离
-#dist_matrix <- dist(rbind(train_matrix, test_matrix))
+pred_xgb3<-pred_xgb2[,c(3,4)]
 
-# 将距离转换为相似度分数
-#similarity_scores <- 1 / (1 + as.numeric(dist_matrix))
-
-# 将相似度分数添加到测试数据集中
-#test_data$similarity_score <- similarity_scores[(nrow(train_matrix) + 1):nrow(dist_matrix)]
-#train_data$similarity_score <- similarity_scores[(nrow(train_matrix) + 1):nrow(dist_matrix)]
-
-# 将标签变量映射为0和1
-train_data$label <- ifelse(train_data$target == -1, 0, train_data$target)
-
-# 将非数值型变量转换为数值型
-train_data <- data.frame(lapply(train_data, as.numeric))
-
-# 将数据转换为DMatrix格式
-dtrain <- xgb.DMatrix(data = as.matrix(train_data[, -(1:2)]), label = train_data$target)
-dtest <- xgb.DMatrix(data = as.matrix(test_data[, -(1:1)]))
-
-# 设置XGBoost参数
-xgb_params <- list(
-  objective = "binary:logistic",
-  eval_metric = "auc",
-  max_depth = 9,
-  eta = 0.01,
-  subsample = 0.8,
-  colsample_bytree = 0.9
-)
-
-# 数据预处理
-train_data$target <- as.factor(train_data$target)
-
-# 训练XGBoost模型
-xgb_model <- xgb.train(params = xgb_params, data = dtrain, nrounds = 100)
-
-# 预测测试数据集
-predictions <- predict(xgb_model, newdata = dtest)
-
-# 保存预测结果为CSV文件
-result <- data.frame(Id = test_data$id, label = predictions)
-#result$label <- ifelse(result$label < 0.5, -1, 1)
-write.csv(result, file = opt$output, row.names = FALSE)
-
+write.csv(pred_xgb3, "../results/predictions.csv", row.names = FALSE)

@@ -18,7 +18,7 @@ The train and the test data are selected from users listening history in a given
 example commend  to reproduce your analysis,
 following R script
 ```R
-Rscript code/your_script.R --input data/train --output results/performance.tsv
+Rscript code/your_script.R 
 ```
 
 ## Folder organization and its related description
