@@ -1,2 +1,6 @@
 data/
 code/.Rhistory
+code/submission.csv
+.gitignore
+Preprocessing/.Rhistory
+code/output.csv
