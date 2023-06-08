@@ -1,4 +1,4 @@
-[PPT LINK.](https://docs.google.com/presentation/d/1QfXssuLYQeZ_qJUhWUgE4wiKqZbs8TMKPWbL8S95_AU/edit#slide=id.g24f5f7f2113_0_10) 
+
 # [第二組] KKBox's Music Recommendation Challenge
 In this task, you will be asked to predict the chances of a user listening to a song repetitively after the first observable listening event within a time window was triggered. If there are recurring listening event(s) triggered within a month after the user’s very first observable listening event, its target is marked 1, and 0 otherwise in the training set. The same rule applies to the testing set.
 
@@ -11,9 +11,9 @@ The train and the test data are selected from users listening history in a given
 |-|-|-|-|
 |李峻安|資科碩一|111753222|團隊中的吉祥物🐇| 
 |林尚儀|資科碩一|111753220|海報與去達賢報告|
-|鄭竣鴻|統計碩一|111354009|資料數據模型|
-|陳劭晏|統計碩二|110354012|EDA 與 投影片|
-|凃于珊|統計碩二|110354011|資料數據模型|
+|鄭竣鴻|統計碩一|111354009|EDA|
+|陳劭晏|統計碩二|110354012|特徵工程與模型訓練|
+|凃于珊|統計碩二|110354011|特徵工程|
 
 ## Quick start
 example commend  to reproduce your analysis,
@@ -26,27 +26,30 @@ Rscript code/your_script.R
 WSDM - KKBox's Music Recommendation Challenge (2018) 
 [LINK.](https://www.kaggle.com/competitions/kkbox-music-recommendation-challenge) 
 ### docs
-* Your presentation, 1112_DS-FP_groupID.ppt/pptx/pdf (i.e.,1112_DS-FP_group1.ppt), by **06.08**
-* Any related document for the project
-  * i.e., software user guide
+* [Group2_finalProject.pptx](https://docs.google.com/presentation/d/1QfXssuLYQeZ_qJUhWUgE4wiKqZbs8TMKPWbL8S95_AU/edit#slide=id.g24f5f7f2113_0_10) 
 
 ### data
 * Input
-  * Source
-  * Format
-  * Size 
+  * Source: [Dataset Description](https://www.kaggle.com/competitions/kkbox-music-recommendation-challenge/data)
+  * Format:5個CSV檔案，包含訓練集、測試集、使用者資訊、歌曲資訊以及歌曲額外資訊。訓練資料含有Target目標欄位。
+  * Size:訓練集資料七百多萬筆，測試集資料兩百多萬筆。
 * Output
+  * Format:CSV file, 2欄位(ID, target)
 
 ### code
-* Analysis steps
-* Which method or package do you use? 
-  * original packages in the paper
-  * additional packages you found
+* Preprocess
+  * 極端值clipping處理
+  * 用戶特徵提取
+  * 歌曲特徵提取
+  * 歌曲相關特徵提取
+  * 透過SVD針對user-item matrix消除噪音並擷取91個新特徵
+* Methods
+  * XGBoost
+  * LightGBM
+  *(使用5-folds Cross Validation選取最佳參數)
 
 ### results
-* What is a null model for comparison?
-* How do your perform evaluation?
-  * Cross-validation, or extra separated data
+* 原始模型成績800多名(AUC 0.58)經過特徵工程之後晉升300名(AUC 0.68)
 
 ## References
 * Packages you use
