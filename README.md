@@ -16,7 +16,7 @@ The train and the test data are selected from users listening history in a given
 |凃于珊|統計碩二|110354011|特徵工程|
 
 ## Quick start
-example commend  to reproduce your analysis,
+
 !! We do not recommend you to run the R file directly, since the memory requirement of it is really high.!!
 Instead, you can open the .ipynb(Python version) file to demo the project with lower computation cost.
 If you have any technical problem, feel free to contact us.
