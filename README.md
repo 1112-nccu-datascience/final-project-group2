@@ -17,10 +17,9 @@ The train and the test data are selected from users listening history in a given
 
 ## Quick start
 example commend  to reproduce your analysis,
-following R script
-```R
-Rscript code/your_script.R 
-```
+!! We do not recommend you to run the R file directly, since the memory requirement of it is really high.!!
+Instead, you can open the .ipynb(Python version) file to demo the project with lower computation cost.
+If you have any technical problem, feel free to contact us.
 
 ## Folder organization and its related description
 WSDM - KKBox's Music Recommendation Challenge (2018) 
