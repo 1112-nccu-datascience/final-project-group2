@@ -28,6 +28,7 @@ WSDM - KKBox's Music Recommendation Challenge (2018)
 * [Group2_finalProject.pptx](https://docs.google.com/presentation/d/1QfXssuLYQeZ_qJUhWUgE4wiKqZbs8TMKPWbL8S95_AU/edit#slide=id.g24f5f7f2113_0_10) 
 
 ### data
+**Since the sizes of data files exceeded Github's upload limit, we leave the data source link down below for you to download**  
 * Input
   * Source: [Dataset Description](https://www.kaggle.com/competitions/kkbox-music-recommendation-challenge/data)
   * Format:5個CSV檔案，包含訓練集、測試集、使用者資訊、歌曲資訊以及歌曲額外資訊。訓練資料含有Target目標欄位。
